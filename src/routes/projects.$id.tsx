@@ -67,7 +67,7 @@ export function ProjectDetail() {
             {/* Back Button */}
             <Link
               to="/projects"
-              className="absolute left-5 top-24 z-10 flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-background transition-colors"
+              className="absolute left-5 top-6 z-10 flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-background transition-colors"
             >
               <ArrowLeft className="size-4" />
               Back
