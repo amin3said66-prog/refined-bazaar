@@ -172,6 +172,12 @@
   --social-github: oklch(0.35 0.02 265);
   --social-linkedin: oklch(0.52 0.13 245);
   --social-foreground: oklch(0.99 0.005 90);
+
+  /* Scrollbar (coral mode) */
+  --scrollbar-size: 10px;
+  --scrollbar-track: oklch(0.58 0.17 30 / 0.55);
+  --scrollbar-thumb: oklch(0.99 0.005 90 / 0.42);
+  --scrollbar-thumb-hover: oklch(0.9 0.19 95);
 }
 
 .light {
@@ -207,6 +213,11 @@
   --social-github: oklch(0.35 0.02 265);
   --social-linkedin: oklch(0.52 0.13 245);
   --social-foreground: oklch(0.99 0.005 90);
+
+  /* Scrollbar (light mode) */
+  --scrollbar-track: oklch(0.28 0.09 32 / 0.07);
+  --scrollbar-thumb: oklch(0.28 0.09 32 / 0.28);
+  --scrollbar-thumb-hover: oklch(0.64 0.19 30);
 }
 
 @layer base {
@@ -214,24 +225,40 @@
     border-color: var(--color-border);
   }
 
+  /* Single source of truth for scrollbars (both modes) */
   html {
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: var(--gold) var(--color-background);
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   }
 
-  ::-webkit-scrollbar {
-    width: 8px;
+  *::-webkit-scrollbar {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
   }
 
-  ::-webkit-scrollbar-track {
-    background: var(--color-background);
+  *::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 999px;
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: var(--gold);
-    border-radius: 4px;
+  *::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
   }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
 
   body {
     background-color: var(--color-background);
