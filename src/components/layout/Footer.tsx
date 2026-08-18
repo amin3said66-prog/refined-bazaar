@@ -48,7 +48,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className={`group relative grid place-items-center rounded-[1.4rem] ring-4 ring-foreground transition-all duration-300 hover:-translate-y-2 ${tone} ${
+                  className={`group relative grid place-items-center rounded-[1.4rem] ring-[3px] ring-foreground ring-offset-0 shadow-[0_0_0_3px_var(--foreground)] transition-all duration-300 hover:-translate-y-2 ${tone} ${
                     featured ? "size-20 scale-105 rounded-[1.7rem]" : "size-16"
                   }`}
                 >
@@ -70,7 +70,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col items-center gap-6 px-2 py-8 md:flex-row md:justify-between md:px-6">
           <Link to="/" className="flex items-center gap-3" aria-label="Home">
-            <span className="grid size-11 place-items-center rounded-lg bg-foreground">
+            <span className="grid size-11 place-items-center rounded-[0.35rem] bg-foreground">
               <span className="font-display text-lg font-black leading-none text-background">
                 MS
               </span>
