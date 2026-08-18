@@ -48,7 +48,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className={`group relative grid place-items-center rounded-[1.4rem] ring-[3px] ring-foreground ring-offset-0 shadow-[0_0_0_3px_var(--foreground)] transition-all duration-300 hover:-translate-y-2 ${tone} ${
+                  className={`group relative grid place-items-center rounded-[1.4rem] ring-4 ring-foreground transition-all duration-300 hover:-translate-y-2 ${tone} ${
                     featured ? "size-20 scale-105 rounded-[1.7rem]" : "size-16"
                   }`}
                 >
