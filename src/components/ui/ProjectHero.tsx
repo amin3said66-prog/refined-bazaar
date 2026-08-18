@@ -24,7 +24,7 @@ export function ProjectHero({ project, children }: ProjectHeroProps) {
           }}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/70" />
       {children}
     </div>
   );
