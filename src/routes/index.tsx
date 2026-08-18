@@ -1,24 +1,68 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { Hero } from "@/components/sections/Hero";
+import { About } from "@/components/sections/About";
+import { Skills } from "@/components/sections/Skills";
+import { Projects } from "@/components/sections/Projects";
+import { Experience } from "@/components/sections/Experience";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { Contact } from "@/components/sections/Contact";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Marketplace Systems Architect & Full-Stack Engineer" },
+      {
+        name: "description",
+        content:
+          "I design and ship multi-vendor platforms, real-time bidding engines, and high-scale commerce systems end to end.",
+      },
+      {
+        property: "og:title",
+        content: "Marketplace Systems Architect & Full-Stack Engineer",
+      },
+      {
+        property: "og:description",
+        content:
+          "Building marketplaces that scale to millions — multi-vendor, B2C, B2B, and custom commerce systems.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          jobTitle: "Marketplace Systems Architect & Full-Stack Engineer",
+          knowsAbout: [
+            "Multi-vendor marketplaces",
+            "Real-time bidding",
+            "Full-stack engineering",
+            "High-scale commerce",
+          ],
+        }),
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <Skills />
+        <Projects />
+        <Experience />
+        <Testimonials />
+        <Contact />
+      </main>
+      <Footer />
     </div>
   );
 }
