@@ -84,25 +84,15 @@ export function Footer() {
           </Link>
 
           <nav className="flex flex-wrap items-center justify-center gap-7">
-            {footerLinks.map((item) =>
-              item.to ? (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className="text-xs font-bold uppercase tracking-[0.18em] text-foreground transition-colors hover:text-gold"
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-xs font-bold uppercase tracking-[0.18em] text-foreground transition-colors hover:text-gold"
-                >
-                  {item.label}
-                </a>
-              ),
-            )}
+            {footerLinks.map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="text-xs font-bold uppercase tracking-[0.18em] text-foreground transition-colors hover:text-gold"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           <p className="text-right text-[10px] font-bold uppercase leading-[1.6] tracking-[0.22em] text-gold">
