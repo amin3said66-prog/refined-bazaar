@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 export function ExperiencePreview() {
   const { tr } = useI18n();
   const current = experience[0];
+  if (!current) return null;
 
   return (
     <section id="experience" className="scroll-mt-24 py-24">

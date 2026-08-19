@@ -6,14 +6,19 @@ import { useI18n } from "@/lib/i18n";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LangToggle } from "@/components/ui/LangToggle";
 
-type NavLink = { id: string; key: string; to: "/" | "/projects"; hash?: string };
+type NavLink = {
+  id: string;
+  key: string;
+  to: "/" | "/projects" | "/about" | "/skills" | "/experience" | "/contact";
+  hash?: string;
+};
 
 const links: NavLink[] = [
   { id: "projects", key: "nav.projects", to: "/projects" },
-  { id: "about", key: "nav.about", to: "/", hash: "about" },
-  { id: "skills", key: "nav.skills", to: "/", hash: "skills" },
-  { id: "experience", key: "nav.experience", to: "/", hash: "experience" },
-  { id: "contact", key: "nav.contact", to: "/", hash: "contact" },
+  { id: "about", key: "nav.about", to: "/about" },
+  { id: "skills", key: "nav.skills", to: "/skills" },
+  { id: "experience", key: "nav.experience", to: "/experience" },
+  { id: "contact", key: "nav.contact", to: "/contact" },
 ];
 
 const socials = [

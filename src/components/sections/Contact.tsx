@@ -15,7 +15,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function Contact() {
+export function Contact({ showHeading = true }: { showHeading?: boolean }) {
   const { tr } = useI18n();
   const {
     register,
@@ -36,12 +36,16 @@ export function Contact() {
   return (
     <section id="contact" className="scroll-mt-24 bg-secondary/20 py-28">
       <div className="mx-auto max-w-2xl px-5">
-        <SectionHeading title={tr("contact.title")} />
-        <Reveal>
-          <p className="-mt-6 mb-10 text-center text-muted-foreground">
-            {tr("contact.subtitle")}
-          </p>
-        </Reveal>
+        {showHeading ? (
+          <>
+            <SectionHeading title={tr("contact.title")} />
+            <Reveal>
+              <p className="-mt-6 mb-10 text-center text-muted-foreground">
+                {tr("contact.subtitle")}
+              </p>
+            </Reveal>
+          </>
+        ) : null}
 
         <Reveal>
           <form

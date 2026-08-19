@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { Briefcase, Calendar, ChevronRight } from "lucide-react";
 
-export function Experience() {
+export function Experience({ showHeading = true }: { showHeading?: boolean }) {
   const { tr } = useI18n();
 
   const containerVariants = {
@@ -31,7 +31,7 @@ export function Experience() {
   return (
     <section id="experience" className="scroll-mt-24 bg-gradient-to-b from-background via-secondary/10 to-background py-28">
       <div className="mx-auto max-w-5xl px-5">
-        <SectionHeading title={tr("experience.title")} />
+        {showHeading ? <SectionHeading title={tr("experience.title")} /> : null}
 
         {/* Timeline Container */}
         <motion.div
