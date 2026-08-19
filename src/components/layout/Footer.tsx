@@ -21,10 +21,11 @@ const socials = [
 ];
 
 const footerLinks = [
-  { label: "Projects", to: "/projects" },
-  { label: "About", href: "/#about" },
-  { label: "Skills", href: "/#skills" },
-  { label: "Contacts", href: "/#contact" },
+  { label: "Projects", to: "/projects" as const },
+  { label: "About", to: "/about" as const },
+  { label: "Skills", to: "/skills" as const },
+  { label: "Experience", to: "/experience" as const },
+  { label: "Contacts", to: "/contact" as const },
 ];
 
 export function Footer() {
