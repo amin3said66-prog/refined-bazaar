@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SkillsRouteImport } from './routes/skills'
@@ -25,6 +27,16 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExperienceRoute = ExperienceRouteImport.update({
+  id: '/experience',
+  path: '/experience',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -56,6 +68,8 @@ const ProjectsIdRoute = ProjectsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/experience': typeof ExperienceRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/skills': typeof SkillsRoute
@@ -65,6 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/experience': typeof ExperienceRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/skills': typeof SkillsRoute
   '/projects/$id': typeof ProjectsIdRoute
@@ -74,6 +90,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/experience': typeof ExperienceRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/skills': typeof SkillsRoute
@@ -85,6 +103,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/contact'
+    | '/experience'
     | '/projects'
     | '/sitemap.xml'
     | '/skills'
@@ -92,11 +112,20 @@ export interface FileRouteTypes {
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/about' | '/sitemap.xml' | '/skills' | '/projects/$id' | '/projects'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/experience'
+    | '/sitemap.xml'
+    | '/skills'
+    | '/projects/$id'
+    | '/projects'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/contact'
+    | '/experience'
     | '/projects'
     | '/sitemap.xml'
     | '/skills'
@@ -107,6 +136,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  ExperienceRoute: typeof ExperienceRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SkillsRoute: typeof SkillsRoute
@@ -126,6 +157,20 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/experience': {
+      id: '/experience'
+      path: '/experience'
+      fullPath: '/experience'
+      preLoaderRoute: typeof ExperienceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -183,6 +228,8 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  ExperienceRoute: ExperienceRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SkillsRoute: SkillsRoute,
