@@ -52,6 +52,9 @@ export function ProjectDetail() {
   const projectIndex = projects.findIndex((p) => p.id === id);
   const nextProject = projects[projectIndex + 1];
   const prevProject = projectIndex > 0 ? projects[projectIndex - 1] : null;
+  const related = projects
+    .filter((p) => p.id !== project.id && p.category === project.category)
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -160,6 +163,32 @@ export function ProjectDetail() {
 
               {/* Tech Stack */}
               <TechStack techs={project.tech} className="mb-12" />
+
+              {/* Related projects */}
+              {related.length > 0 && (
+                <div className="mb-12">
+                  <h2 className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+                    More in {project.category}
+                  </h2>
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {related.map((r) => (
+                      <Link
+                        key={r.id}
+                        to="/projects/$id"
+                        params={{ id: r.id }}
+                        className="group glass rounded-xl border border-border p-5 transition-all hover:-translate-y-1 hover:border-gold/50"
+                      >
+                        <h3 className="font-bold transition-colors group-hover:text-gold">
+                          {r.title}
+                        </h3>
+                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                          {r.description}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Navigation */}
               <div className="border-t border-border pt-12">
