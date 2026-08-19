@@ -2,12 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { About } from "@/components/sections/About";
-import { Skills } from "@/components/sections/Skills";
+import { AboutPreview } from "@/components/sections/home/AboutPreview";
+import { SkillsPreview } from "@/components/sections/home/SkillsPreview";
 import { Projects } from "@/components/sections/Projects";
-import { Experience } from "@/components/sections/Experience";
+import { ExperiencePreview } from "@/components/sections/home/ExperiencePreview";
 import { Testimonials } from "@/components/sections/Testimonials";
-import { Contact } from "@/components/sections/Contact";
+import { ContactCta } from "@/components/sections/home/ContactCta";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +27,8 @@ export const Route = createFileRoute("/")({
         content:
           "Building marketplaces that scale to millions — multi-vendor, B2C, B2B, and custom commerce systems.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/" }],
     scripts: [
@@ -55,12 +57,12 @@ function Index() {
       <Navbar />
       <main>
         <Hero />
-        <About />
-        <Skills />
+        <AboutPreview />
+        <SkillsPreview />
         <Projects />
-        <Experience />
+        <ExperiencePreview />
         <Testimonials />
-        <Contact />
+        <ContactCta />
       </main>
       <Footer />
     </div>
