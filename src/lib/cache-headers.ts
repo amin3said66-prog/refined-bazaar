@@ -135,9 +135,7 @@ export function withCacheHeaders(request: Request, response: Response): Response
   const setsCookie = response.headers.has("set-cookie");
   if (!isRead || setsCookie) {
     if (!setsCookie && !isServerFnPath(pathname)) return response;
-    const headers = new Headers(response.headers);
-    headers.set("Cache-Control", NO_STORE);
-    return rebuild(response, headers);
+    return applyHeaders(request, response, (headers) => headers.set("Cache-Control", NO_STORE));
   }
 
   const credentialed = request.headers.has("authorization") || request.headers.has("cookie");
@@ -151,20 +149,41 @@ export function withCacheHeaders(request: Request, response: Response): Response
   const existing = response.headers.get("cache-control");
   if (existing && !UPGRADABLE_DEFAULTS.has(existing.trim().toLowerCase())) return response;
 
-  // Response headers are immutable for some runtime-produced responses.
-  const headers = new Headers(response.headers);
-  headers.set("Cache-Control", value);
-  addVary(headers, "Accept-Encoding");
-
-  return rebuild(response, headers);
-}
-
-/** 204/304 must not carry a body, otherwise the runtime throws. */
-function rebuild(response: Response, headers: Headers): Response {
-  const bodyless = response.status === 204 || response.status === 304 || response.status === 205;
-  return new Response(bodyless ? null : response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
+  return applyHeaders(request, response, (headers) => {
+    headers.set("Cache-Control", value);
+    addVary(headers, "Accept-Encoding");
   });
 }
+
+/**
+ * Mutate the response headers in place when the runtime allows it. Re-wrapping
+ * a streamed SSR response (`new Response(response.body, ...)`) tears off the
+ * original stream, which cancels the in-flight React render — in dev that
+ * surfaces as `Error: aborted` / "render was aborted by the server". Only fall
+ * back to a copy when the headers are genuinely immutable.
+ */
+function applyHeaders(
+  request: Request,
+  response: Response,
+  mutate: (headers: Headers) => void,
+): Response {
+  try {
+    mutate(response.headers);
+    return response;
+  } catch {
+    const headers = new Headers(response.headers);
+    mutate(headers);
+    // 204/304/205 and HEAD must not carry a body.
+    const bodyless =
+      request.method === "HEAD" ||
+      response.status === 204 ||
+      response.status === 205 ||
+      response.status === 304;
+    return new Response(bodyless ? null : response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  }
+}
+
