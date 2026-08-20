@@ -5,7 +5,41 @@ let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
 
 function record(error: unknown) {
+  if (isExpectedRequestAbort(error)) return;
   lastCapturedError = { error, at: Date.now() };
+}
+
+/**
+ * A browser can close an SSR socket at any point (navigation, refresh, preview
+ * reconnect). Node reports that normal disconnect as `Error: aborted`, often
+ * wrapped in an HTTP error. It is not an application failure and must not be
+ * promoted to the editor's fatal runtime-error overlay.
+ */
+export function isExpectedRequestAbort(error: unknown): boolean {
+  let current: unknown = error;
+  const seen = new Set<unknown>();
+
+  for (let depth = 0; depth < CAUSE_DEPTH_LIMIT && current != null; depth++) {
+    if (seen.has(current)) return false;
+    seen.add(current);
+
+    if (current instanceof DOMException && current.name === "AbortError") return true;
+    if (!(current instanceof Error)) return false;
+
+    const message = current.message.trim().toLowerCase();
+    if (
+      current.name === "AbortError" ||
+      message === "aborted" ||
+      message === "the operation was aborted" ||
+      message === "the render was aborted by the server without a reason."
+    ) {
+      return true;
+    }
+
+    current = current.cause;
+  }
+
+  return false;
 }
 
 // h3's HTTPError serializes to {"status":500,"unhandled":true,"message":"HTTPError"} —
@@ -54,6 +88,10 @@ function isErrorLike(value: unknown): value is Error {
 // recorded for consumeLastCapturedError and expanded before serialization.
 const originalConsoleError = console.error.bind(console);
 console.error = (...args: unknown[]) => {
+  // TanStack/React logs a cancelled SSR stream after a client disconnect.
+  // Suppress that expected transport event, but only when an actual Error in
+  // the argument list has a recognized abort in its cause chain.
+  if (args.some((arg) => isExpectedRequestAbort(arg))) return;
   const expanded = args.map((arg) => {
     if (!isErrorLike(arg)) return arg;
     record(arg);
