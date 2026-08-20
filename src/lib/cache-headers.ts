@@ -7,12 +7,16 @@
  * navigation) and shared caches/CDNs cannot store anything at all.
  *
  * Rules (most specific first):
+ *  - server-function calls: `private, no-store` (never shared-cacheable).
+ *  - any response carrying `Set-Cookie`: `private, no-store` — a shared cache
+ *    must never hand one visitor's cookie to another.
  *  - `/assets/*`, `/_build/*`: content-hashed by Vite → immutable for a year.
- *  - static media (lottie/wasm/images/fonts/icons/cv): long TTL + SWR, since
- *    the filenames are stable but the files can be replaced on a deploy.
+ *  - static media by path (lottie/wasm/images/projects/api/fonts/cv/icons) and
+ *    by content type (image/font/video/audio/wasm): long TTL + SWR, since the
+ *    filenames are stable but the files can be replaced on a deploy.
  *  - HTML documents: `no-cache` (store, but always revalidate) so a deploy is
  *    picked up immediately while still allowing 304s.
- *  - everything else (server functions, API-ish routes): left untouched.
+ *  - everything else: left untouched.
  */
 
 const YEAR = 31_536_000;
@@ -21,10 +25,24 @@ const DAY = 86_400;
 const IMMUTABLE = `public, max-age=${YEAR}, immutable`;
 const MEDIA = `public, max-age=${DAY}, stale-while-revalidate=${YEAR}`;
 const DOCUMENT = "public, no-cache, must-revalidate";
+const PRIVATE_DOCUMENT = "private, no-cache, must-revalidate";
+const NO_STORE = "private, no-store";
 
 const HASHED_PREFIXES = ["/assets/", "/_build/", "/_serverFn/assets/"];
 
-const MEDIA_PREFIXES = ["/lottie/", "/wasm/", "/images/", "/projects/", "/fonts/", "/cv/"];
+/**
+ * `/api/` here is a *static image* folder in `public/`, not a server route
+ * namespace; real endpoints live under `/api/public/*` and are excluded below.
+ */
+const MEDIA_PREFIXES = [
+  "/lottie/",
+  "/wasm/",
+  "/images/",
+  "/projects/",
+  "/api/",
+  "/fonts/",
+  "/cv/",
+];
 
 const MEDIA_FILES = new Set([
   "/favicon.ico",
@@ -36,21 +54,65 @@ const MEDIA_FILES = new Set([
   "/site.webmanifest",
 ]);
 
-/** Requests that must never be cached by a shared cache. */
-function isPrivatePath(pathname: string): boolean {
+/** Content types that are always static bytes, whatever the URL looks like. */
+const MEDIA_CONTENT_TYPES = ["image/", "font/", "video/", "audio/", "application/font"];
+
+/**
+ * Framework defaults that are safe to upgrade. Anything else means a handler
+ * made an explicit decision, and that decision wins.
+ */
+const UPGRADABLE_DEFAULTS = new Set([
+  "no-cache",
+  "public, no-cache",
+  "max-age=0",
+  "public, max-age=0",
+  "public, max-age=0, must-revalidate",
+  "no-cache, must-revalidate",
+]);
+
+function isServerFnPath(pathname: string): boolean {
   return pathname.startsWith("/_serverFn/") && !pathname.startsWith("/_serverFn/assets/");
 }
 
-export function cacheControlFor(pathname: string, contentType: string | null): string | null {
-  if (isPrivatePath(pathname)) return "private, no-store";
+function isApiRoute(pathname: string): boolean {
+  return pathname.startsWith("/api/public/") || pathname === "/api" || pathname === "/api/public";
+}
+
+function isMedia(pathname: string, contentType: string | null): boolean {
+  if (MEDIA_PREFIXES.some((p) => pathname.startsWith(p))) return true;
+  if (MEDIA_FILES.has(pathname)) return true;
+  if (contentType && MEDIA_CONTENT_TYPES.some((t) => contentType.startsWith(t))) return true;
+  if (contentType?.startsWith("application/wasm")) return true;
+  return false;
+}
+
+export function cacheControlFor(
+  pathname: string,
+  contentType: string | null,
+  opts: { credentialed?: boolean } = {},
+): string | null {
+  if (isServerFnPath(pathname) || isApiRoute(pathname)) return NO_STORE;
 
   if (HASHED_PREFIXES.some((p) => pathname.startsWith(p))) return IMMUTABLE;
-  if (MEDIA_PREFIXES.some((p) => pathname.startsWith(p))) return MEDIA;
-  if (MEDIA_FILES.has(pathname)) return MEDIA;
+  if (isMedia(pathname, contentType)) return MEDIA;
 
-  if (contentType?.includes("text/html")) return DOCUMENT;
+  if (contentType?.includes("text/html")) {
+    return opts.credentialed ? PRIVATE_DOCUMENT : DOCUMENT;
+  }
 
   return null;
+}
+
+/** Append a value to `Vary` without clobbering what the framework already set. */
+function addVary(headers: Headers, value: string) {
+  const existing = headers.get("vary");
+  if (!existing) {
+    headers.set("Vary", value);
+    return;
+  }
+  const parts = existing.split(",").map((p) => p.trim().toLowerCase());
+  if (parts.includes("*") || parts.includes(value.toLowerCase())) return;
+  headers.set("Vary", `${existing}, ${value}`);
 }
 
 /**
@@ -58,8 +120,7 @@ export function cacheControlFor(pathname: string, contentType: string | null): s
  * explicit decision (e.g. `sitemap.xml`).
  */
 export function withCacheHeaders(request: Request, response: Response): Response {
-  if (request.method !== "GET" && request.method !== "HEAD") return response;
-  // Only successful / not-modified responses are safe to hand a long TTL.
+  const isRead = request.method === "GET" || request.method === "HEAD";
   if (response.status >= 400) return response;
 
   let pathname: string;
@@ -69,22 +130,39 @@ export function withCacheHeaders(request: Request, response: Response): Response
     return response;
   }
 
-  const value = cacheControlFor(pathname, response.headers.get("content-type"));
+  // A response that sets a cookie is visitor-specific by definition, and an
+  // unsafe method's response must not be reused — both are hard `no-store`.
+  const setsCookie = response.headers.has("set-cookie");
+  if (!isRead || setsCookie) {
+    if (!setsCookie && !isServerFnPath(pathname)) return response;
+    const headers = new Headers(response.headers);
+    headers.set("Cache-Control", NO_STORE);
+    return rebuild(response, headers);
+  }
+
+  const credentialed = request.headers.has("authorization") || request.headers.has("cookie");
+  const value = cacheControlFor(pathname, response.headers.get("content-type"), { credentialed });
   if (!value) return response;
 
-  // A route handler that made its own explicit decision wins (e.g. sitemap).
-  // The static-asset layer only ever emits the framework default `no-cache`,
-  // which would force a revalidation round trip per asset per navigation, so
-  // that one is intentionally upgraded for known-static paths.
+  // The static-asset layer only ever emits a framework default such as
+  // `no-cache`, which forces a revalidation round trip per asset per
+  // navigation; those are upgraded. Anything more specific is a deliberate
+  // handler decision and is left alone.
   const existing = response.headers.get("cache-control");
-  if (existing && !(value !== DOCUMENT && existing === "no-cache")) return response;
+  if (existing && !UPGRADABLE_DEFAULTS.has(existing.trim().toLowerCase())) return response;
 
   // Response headers are immutable for some runtime-produced responses.
   const headers = new Headers(response.headers);
   headers.set("Cache-Control", value);
-  if (value === IMMUTABLE || value === MEDIA) headers.set("Vary", "Accept-Encoding");
+  addVary(headers, "Accept-Encoding");
 
-  return new Response(response.body, {
+  return rebuild(response, headers);
+}
+
+/** 204/304 must not carry a body, otherwise the runtime throws. */
+function rebuild(response: Response, headers: Headers): Response {
+  const bodyless = response.status === 204 || response.status === 304 || response.status === 205;
+  return new Response(bodyless ? null : response.body, {
     status: response.status,
     statusText: response.statusText,
     headers,
