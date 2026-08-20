@@ -1,12 +1,12 @@
-# Refined Bazaar
+# Always Lovely
 
-clone this repo https://github.com/Mostafa-SAID7/refined-marketplace to be more matching
+clone + run https://github.com/vineyesa50-eng/always-lovely-dark
 
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/8f02b392-630b-4b79-a2b3-19f1e7aa300c).
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/b9e49d4f-bb0b-4efd-b775-a3f053d08cec).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
 - **Stay in sync**: every change made in Lovable is committed straight to this repository.
