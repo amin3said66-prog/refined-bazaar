@@ -1,164 +1,225 @@
-import { useEffect, useState } from "react";
-import { Menu, X, Github, Linkedin, Twitter } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { Menu, X, Github, Linkedin, Sun, Moon, Globe } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTheme } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { LangToggle } from "@/components/ui/LangToggle";
-
-type NavLink = {
-  id: string;
-  key: string;
-  to: "/" | "/projects" | "/about" | "/skills" | "/experience" | "/contact";
-  hash?: string;
-};
-
-const links: NavLink[] = [
-  { id: "projects", key: "nav.projects", to: "/projects" },
-  { id: "about", key: "nav.about", to: "/about" },
-  { id: "skills", key: "nav.skills", to: "/skills" },
-  { id: "experience", key: "nav.experience", to: "/experience" },
-  { id: "contact", key: "nav.contact", to: "/contact" },
-];
-
-const socials = [
-  { Icon: Github, href: "https://github.com/Mostafa-SAID7", label: "GitHub" },
-  { Icon: Linkedin, href: "#", label: "LinkedIn" },
-  { Icon: Twitter, href: "#", label: "Twitter" },
-];
-
-function NavItem({
-  link,
-  onClick,
-  className,
-  children,
-}: {
-  link: NavLink;
-  onClick: () => void;
-  className: string;
-  children: React.ReactNode;
-}) {
-  if (link.hash) {
-    return (
-      <Link
-        to={link.to}
-        hash={link.hash}
-        hashScrollIntoView={{ behavior: "smooth" }}
-        onClick={onClick}
-        className={className}
-      >
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <Link to={link.to} onClick={onClick} className={className}>
-      {children}
-    </Link>
-  );
-}
+import { cn } from "@/lib/utils";
+import { prefetchRouteLottie } from "@/lib/lottie-routes";
 
 export function Navbar() {
-  const { tr } = useI18n();
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const { lang, toggleLang, tr } = useI18n();
+
+  const navLinks = [
+    { key: "nav.works", to: "/projects" },
+    { key: "nav.about", to: "/about" },
+    { key: "nav.experience", to: "/experience" },
+    { key: "nav.contact", to: "/contact" },
+  ] as const;
+
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /**
+   * Publish the live header height as `--nav-h` so sticky page toolbars can
+   * park right under the bar — it shrinks on scroll, so a fixed offset would
+   * leave a big gap at the top and a tight one after scrolling.
+   */
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const write = () => {
+      document.documentElement.style.setProperty(
+        "--nav-h",
+        `${Math.round(el.getBoundingClientRect().height)}px`,
+      );
+    };
+    write();
+    const ro = new ResizeObserver(write);
+    ro.observe(el);
+    const id = window.setInterval(write, 100);
+    const stop = window.setTimeout(() => window.clearInterval(id), 700);
+    return () => {
+      ro.disconnect();
+      window.clearInterval(id);
+      window.clearTimeout(stop);
+    };
+  }, [scrolled, open]);
+
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.21, 0.5, 0.3, 1] }}
-      className="fixed inset-x-0 top-4 z-50 px-4"
+    <header
+      ref={headerRef}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 flex justify-center pointer-events-none transition-[padding] duration-500 ease-out",
+        scrolled ? "py-1" : "py-2.5",
+      )}
     >
       <nav
-        className={`mx-auto flex max-w-6xl items-center justify-between rounded-3xl px-3 py-3 transition-all duration-300 ${
-          scrolled ? "glass backdrop-blur-md" : "bg-card/40"
-        }`}
+        className={cn(
+          "pointer-events-auto flex items-center justify-between rounded-2xl border transition-all duration-500 ease-out",
+          "w-[calc(100%-1.5rem)] max-w-5xl",
+          scrolled
+            ? "bg-background/75 backdrop-blur-xl shadow-[0_6px_24px_-6px_rgba(0,0,0,0.25)] border-border/70 py-1.5 px-3"
+            : "bg-background/40 backdrop-blur-md shadow-[0_4px_20px_-8px_rgba(0,0,0,0.15)] border-border/40 py-2 px-4",
+        )}
       >
+        {/* Left: Logo Badge Pill */}
         <Link
           to="/"
-          className="group flex items-center gap-3 rounded-2xl bg-foreground/95 px-4 py-2.5 transition-transform hover:scale-[1.03]"
+          className="group flex items-center gap-2 rounded-2xl bg-card text-card-foreground px-2.5 py-1 shadow-sm border border-border transition-all duration-500 hover:scale-105 select-none"
+          aria-label={tr("common.home")}
         >
-          <span className="font-display text-xl font-black leading-none text-background">
-            MS
-          </span>
-          <span className="text-[10px] font-bold uppercase leading-3 tracking-[0.2em] text-background/80">
-            Market
-            <br />
-            Place
-          </span>
+          {/* Prefix dots */}
+          <div className="flex items-end gap-[2px] opacity-90">
+            <span className="size-1 rounded-full bg-brand mb-[1px]" />
+            <div className="flex flex-col gap-[2px]">
+              <span className="size-1 rounded-full bg-brand" />
+              <span className="size-1 rounded-full bg-brand" />
+            </div>
+          </div>
+
+          {/* MS Red Square */}
+          <div className="grid place-items-center rounded-[4px] bg-brand px-1.5 py-0.5 shadow-sm">
+            <span className="keep-latin type-wordmark [--wordmark-size:0.75rem] text-white">
+              MS
+            </span>
+          </div>
+
+          {/* MOSTAFA SAMIR Text */}
+          <div className="keep-latin flex flex-col text-start type-micro text-foreground">
+            <span>MOSTAFA</span>
+            <span>SAMIR</span>
+          </div>
         </Link>
 
-        <div className="hidden items-center gap-9 md:flex">
-          {links.map((l) => (
-            <NavItem
-              key={l.id}
-              link={l}
-              onClick={() => setOpen(false)}
-              className="relative text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:origin-right after:scale-x-0 after:bg-gold after:transition-transform after:duration-300 hover:text-gold hover:after:origin-left hover:after:scale-x-100"
+        {/* Center: Nav Links */}
+        <div className="hidden items-center gap-6 md:flex">
+          {navLinks.map((l) => (
+            <Link
+              key={l.key}
+              to={l.to}
+              onMouseEnter={() => prefetchRouteLottie(l.to)}
+              onFocus={() => prefetchRouteLottie(l.to)}
+              onTouchStart={() => prefetchRouteLottie(l.to)}
+              className="nav-label text-foreground transition-opacity hover:opacity-75"
             >
               {tr(l.key)}
-            </NavItem>
+            </Link>
           ))}
         </div>
 
+        {/* Right: Controls & Social Icons */}
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 lg:flex">
-            {socials.map(({ Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="grid size-9 place-items-center rounded-full border border-border text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-gold hover:text-gold"
-              >
-                <Icon className="size-4" />
-              </a>
-            ))}
+          {/* Theme Toggle Button */}
+          <button
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+            }}
+            aria-label={tr("common.theme")}
+            className="group relative grid size-8 place-items-center overflow-hidden rounded-2xl bg-foreground/10 border border-border text-foreground transition-all duration-200 hover:bg-foreground/20 hover:scale-105 active:scale-95"
+            title={tr("common.theme")}
+          >
+            <Sun
+              className={`absolute size-3.5 text-accent transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+                theme === "dark" ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"
+              }`}
+            />
+            <Moon
+              className={`absolute size-3.5 text-accent transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+                theme === "dark" ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
+              }`}
+            />
+          </button>
+
+          {/* Language Switcher */}
+          <button
+            onClick={toggleLang}
+            aria-label={tr("common.language")}
+            className="flex h-8 items-center gap-1.5 rounded-2xl bg-foreground/10 border border-border px-2.5 type-micro text-foreground transition-all hover:bg-foreground/20 hover:scale-105"
+            title={tr("common.language")}
+          >
+            <Globe className="size-3.5 text-accent" />
+            <span className="keep-latin uppercase">{lang === "en" ? "AR" : "EN"}</span>
+          </button>
+
+          {/* Social Icons: GitHub & LinkedIn */}
+          <div className="hidden items-center gap-2 sm:flex">
+            <a
+              href="https://github.com/Mostafa-SAID7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="grid size-8 place-items-center rounded-2xl bg-foreground/10 border border-border text-foreground transition-all hover:bg-foreground/20 hover:scale-105"
+              aria-label="GitHub Profile"
+            >
+              <Github className="size-3.5" />
+            </a>
+            <a
+              href="https://linkedin.com/in/mostafasamirsaid"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="grid size-8 place-items-center rounded-2xl bg-foreground/10 border border-border text-foreground transition-all hover:bg-foreground/20 hover:scale-105"
+              aria-label="LinkedIn Profile"
+            >
+              <Linkedin className="size-3.5" />
+            </a>
           </div>
-          <LangToggle />
-          <ThemeToggle />
+
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setOpen((o) => !o)}
-            aria-label="Menu"
-            className="grid size-10 place-items-center rounded-full border border-border md:hidden"
+            aria-label={tr("common.menu")}
+            className="grid size-9 place-items-center rounded-2xl bg-foreground/10 border border-border text-foreground md:hidden"
           >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+            {open ? <X className="size-4" /> : <Menu className="size-4" />}
           </button>
         </div>
       </nav>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden md:hidden"
-          >
-            <div className="glass mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-3xl p-3">
-              {links.map((l) => (
-                <NavItem
-                  key={l.id}
-                  link={l}
-                  onClick={() => setOpen(false)}
-                  className="rounded-2xl px-4 py-3 text-start text-sm font-bold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-gold hover:text-gold-foreground"
-                >
-                  {tr(l.key)}
-                </NavItem>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+      {/* Mobile Drawer */}
+      {open && (
+        <div className="pointer-events-auto absolute top-full inset-x-0 mx-auto mt-2 flex w-[calc(100%-1.5rem)] max-w-md flex-col gap-1 rounded-2xl bg-card text-card-foreground p-4 md:hidden border border-border shadow-2xl">
+          {navLinks.map((l) => (
+            <Link
+              key={l.key}
+              to={l.to}
+              onClick={() => setOpen(false)}
+              onTouchStart={() => prefetchRouteLottie(l.to)}
+              onFocus={() => prefetchRouteLottie(l.to)}
+              className="rounded-2xl px-4 py-2.5 text-start type-label text-foreground hover:bg-foreground/10"
+            >
+              {tr(l.key)}
+            </Link>
+          ))}
+          <div className="flex items-center gap-3 pt-3 border-t border-border mt-1 px-4">
+            <a
+              href="https://github.com/Mostafa-SAID7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 type-body-strong text-foreground hover:opacity-75"
+            >
+              <Github className="size-4" /> GitHub
+            </a>
+            <span className="opacity-30">|</span>
+            <a
+              href="https://linkedin.com/in/mostafasamirsaid"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 type-body-strong text-foreground hover:opacity-75"
+            >
+              <Linkedin className="size-4" /> LinkedIn
+            </a>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }

@@ -1,7 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { projects, projectFilters, type Project } from "@/data";
-
-export type ProjectView = "grid" | "list";
+import type { ProjectView } from "@/components/projects/types";
 
 export const PROJECT_SORTS = [
   { value: "default", key: "projects.sort.default" },
@@ -35,8 +34,7 @@ function sortProjects(list: Project[], sort: SortValue) {
       return sorted.sort((a, b) => b.title.localeCompare(a.title));
     case "category":
       return sorted.sort(
-        (a, b) =>
-          a.category.localeCompare(b.category) || a.title.localeCompare(b.title),
+        (a, b) => a.category.localeCompare(b.category) || a.title.localeCompare(b.title),
       );
     case "tech":
       return sorted.sort((a, b) => b.tech.length - a.tech.length);
@@ -66,12 +64,9 @@ export function useProjectsExplorer() {
   }, []);
 
   const filtered = useMemo(() => {
-    const byCategory =
-      filter === "All" ? projects : projects.filter((p) => p.category === filter);
+    const byCategory = filter === "All" ? projects : projects.filter((p) => p.category === filter);
     const query = deferredQuery.trim().toLowerCase();
-    const searched = query
-      ? byCategory.filter((p) => matchesQuery(p, query))
-      : byCategory;
+    const searched = query ? byCategory.filter((p) => matchesQuery(p, query)) : byCategory;
     return sortProjects(searched, sort);
   }, [filter, deferredQuery, sort]);
 
@@ -106,8 +101,7 @@ export function useProjectsExplorer() {
     filtered,
     paginated: filtered.slice((page - 1) * perPage, page * perPage),
     isFiltering,
-    hasActiveFilters:
-      filter !== "All" || searchQuery.trim().length > 0 || sort !== "default",
+    hasActiveFilters: filter !== "All" || searchQuery.trim().length > 0 || sort !== "default",
     reset,
   };
 }

@@ -1,73 +1,47 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Reveal } from "@/components/ui/Reveal";
-import { Experience } from "@/components/sections/Experience";
-import { experience } from "@/data";
+import { createFileRoute } from "@tanstack/react-router";
+import { PageSkeleton } from "@/components/ui/Skeletons";
+import { PageShell } from "@/components/layout/PageShell";
+import { PageIntro } from "@/components/ui/PageIntro";
+import { CtaLink } from "@/components/ui/CtaLink";
+import { CtaBand } from "@/components/ui/CtaBand";
+import { ExperiencePreview } from "@/components/sections/home/ExperiencePreview";
+import { pageSeo, pageTitle } from "@/lib/seo";
+import { useI18n } from "@/lib/i18n";
+
+const DESCRIPTION =
+  "Professional software engineering experience of Mostafa Samir — .NET 8 Microservices, SignalR IoT telemetry, and multi-tenant marketplace architectures.";
 
 export const Route = createFileRoute("/experience")({
-  head: () => ({
-    meta: [
-      { title: "Experience — Marketplace Platform Engineering" },
-      {
-        name: "description",
-        content:
-          "A timeline of roles building .NET 8 microservices, multi-tenant marketplaces, real-time telemetry pipelines and CI/CD automation.",
-      },
-      {
-        property: "og:title",
-        content: "Experience — Marketplace Platform Engineering",
-      },
-      {
-        property: "og:description",
-        content:
-          "Roles, responsibilities and measurable outcomes from shipping marketplace platforms end to end.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "/experience" }],
-  }),
+  head: () =>
+    pageSeo({ title: pageTitle("Experience"), description: DESCRIPTION, path: "/experience" }),
+  pendingComponent: PageSkeleton,
   component: ExperiencePage,
 });
 
 function ExperiencePage() {
+  const { tr } = useI18n();
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <main>
-        <PageHeader
-          kicker={`${experience.length} roles · 4+ years`}
-          title="Experience"
-          subtitle="Every role below shipped production systems — architecture, data layer, real-time pipelines and the delivery process around them."
-        />
+    <PageShell>
+      <PageIntro
+        eyebrow={tr("experience.page.eyebrow")}
+        title={tr("experience.page.title")}
+        description={tr("experience.page.desc")}
+      />
 
-        <Experience showHeading={false} />
+      <ExperiencePreview />
 
-        <section className="px-5 pb-24">
-          <Reveal>
-            <div className="mx-auto flex max-w-5xl flex-wrap gap-3">
-              <Link
-                to="/projects"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 font-semibold transition-colors hover:border-gold/50 hover:text-gold"
-              >
-                Browse the projects
-                <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 font-semibold text-gold-foreground transition-transform hover:scale-[1.02]"
-              >
-                Work with me
-                <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </Reveal>
-        </section>
-      </main>
-      <Footer />
-    </div>
+      <CtaBand
+        lottie="/lottie/experience-side.lottie"
+        eyebrow={tr("cta.band.eyebrow")}
+        title={tr("experience.cta.title")}
+        description={tr("experience.cta.desc")}
+      >
+        <CtaLink to="/projects" variant="secondary">
+          {tr("skills.page.projectsCta")}
+        </CtaLink>
+        <CtaLink to="/contact">{tr("about.page.contactCta")}</CtaLink>
+      </CtaBand>
+    </PageShell>
   );
 }

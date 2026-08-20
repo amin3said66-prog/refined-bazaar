@@ -1,4 +1,13 @@
-export type ProjectCategory = "Clothing" | "Beauty" | "Jewelry" | "Furniture" | "Dashboard" | "Web3" | "Sports" | "Tech Accessories" | "Backend";
+export type ProjectCategory =
+  | "Clothing"
+  | "Beauty"
+  | "Jewelry"
+  | "Furniture"
+  | "Dashboard"
+  | "Web3"
+  | "Sports"
+  | "Tech Accessories"
+  | "Backend";
 
 export interface Project {
   id: string;
@@ -22,7 +31,8 @@ export const projects: Project[] = [
   {
     id: "town-team",
     title: "Town Team",
-    description: "Team-based clothing e-commerce platform with inventory management and team collaboration features.",
+    description:
+      "Team-based clothing e-commerce platform with inventory management and team collaboration features.",
     category: "Clothing",
     type: "Team",
     tech: ["React"],
@@ -33,7 +43,8 @@ export const projects: Project[] = [
   {
     id: "under-armour",
     title: "Under Armour Store",
-    description: "Full-featured e-commerce platform for athletic apparel with product catalog and checkout system.",
+    description:
+      "Full-featured e-commerce platform for athletic apparel with product catalog and checkout system.",
     category: "Clothing",
     client: "Under Armour",
     type: "Team",
@@ -52,14 +63,15 @@ export const projects: Project[] = [
     type: "Freelance",
     tech: ["React", "PostgreSQL"],
     database: "PostgreSQL",
-    live: "https://ohanna-landing-page.vercel.app/",
+    live: "https://ohanna-api-73.vercel.app/",
     image: "/projects/react/ohanna.png",
     gradient: "linear-gradient(135deg, oklch(0.65 0.17 145), oklch(0.55 0.14 110))",
   },
   {
     id: "lumina-beauty",
     title: "Lumina Beauty",
-    description: "Beauty and cosmetics e-commerce platform with product filtering and recommendation system.",
+    description:
+      "Beauty and cosmetics e-commerce platform with product filtering and recommendation system.",
     category: "Beauty",
     type: "Freelance",
     tech: ["React"],
@@ -70,7 +82,8 @@ export const projects: Project[] = [
   {
     id: "little-boys",
     title: "Little Boys Fashion",
-    description: "Specialized clothing store for children with size guides and parent-friendly interface.",
+    description:
+      "Specialized clothing store for children with size guides and parent-friendly interface.",
     category: "Clothing",
     type: "Freelance",
     tech: ["React"],
@@ -81,7 +94,8 @@ export const projects: Project[] = [
   {
     id: "clothing-shop",
     title: "Clothing Shop",
-    description: "Full-stack clothing e-commerce application with user authentication and order management.",
+    description:
+      "Full-stack clothing e-commerce application with user authentication and order management.",
     category: "Clothing",
     type: "Freelance",
     tech: ["React", "PostgreSQL"],
@@ -93,7 +107,8 @@ export const projects: Project[] = [
   {
     id: "lumina",
     title: "Lumina (Beauty Platform)",
-    description: "Comprehensive beauty and cosmetics marketplace with vendor management and customer reviews.",
+    description:
+      "Comprehensive beauty and cosmetics marketplace with vendor management and customer reviews.",
     category: "Beauty",
     type: "Freelance",
     tech: ["React"],
@@ -104,7 +119,8 @@ export const projects: Project[] = [
   {
     id: "linea-jewelry",
     title: "Linea Jewelry Store",
-    description: "Premium jewelry e-commerce platform with product customization and wishlist features.",
+    description:
+      "Premium jewelry e-commerce platform with product customization and wishlist features.",
     category: "Jewelry",
     type: "Freelance",
     tech: ["React"],
@@ -117,7 +133,8 @@ export const projects: Project[] = [
   {
     id: "vingo-roll",
     title: "Vingo Roll",
-    description: "Web3-enabled furniture marketplace with blockchain transactions and NFT integration.",
+    description:
+      "Web3-enabled furniture marketplace with blockchain transactions and NFT integration.",
     category: "Furniture",
     type: "Team",
     tech: ["React", "Web3"],
@@ -128,7 +145,8 @@ export const projects: Project[] = [
   {
     id: "e-inventory",
     title: "E-Inventory Dashboard",
-    description: "Administrative dashboard for inventory management with real-time stock tracking and analytics.",
+    description:
+      "Administrative dashboard for inventory management with real-time stock tracking and analytics.",
     category: "Dashboard",
     type: "Self",
     tech: ["React"],
@@ -140,7 +158,8 @@ export const projects: Project[] = [
   {
     id: "velocity",
     title: "Velocity Swimming",
-    description: "Community platform for swimming teams with event scheduling and member management.",
+    description:
+      "Community platform for swimming teams with event scheduling and member management.",
     category: "Sports",
     type: "Team",
     tech: ["React", "Web3"],
@@ -151,7 +170,8 @@ export const projects: Project[] = [
   {
     id: "luxelle",
     title: "Luxelle",
-    description: "Premium beauty and cosmetics landing page built with Angular and Web3 integration.",
+    description:
+      "Premium beauty and cosmetics landing page built with Angular and Web3 integration.",
     category: "Beauty",
     type: "Team",
     tech: ["Angular", "Web3"],
@@ -173,7 +193,8 @@ export const projects: Project[] = [
   {
     id: "shop-microservices",
     title: "Shop Microservices",
-    description: "Advanced e-commerce microservices architecture with Web3 integration and scalable backend infrastructure.",
+    description:
+      "Advanced e-commerce microservices architecture with Web3 integration and scalable backend infrastructure.",
     category: "Web3",
     type: "Team",
     tech: ["Microservices", "Web3"],
@@ -185,7 +206,8 @@ export const projects: Project[] = [
   {
     id: "inventory-microservices",
     title: "Inventory Microservices",
-    description: "Comprehensive inventory management system using microservices architecture with advanced tracking and analytics.",
+    description:
+      "Comprehensive inventory management system using microservices architecture with advanced tracking and analytics.",
     category: "Dashboard",
     type: "Team",
     tech: ["Microservices", "Web3"],
@@ -197,7 +219,8 @@ export const projects: Project[] = [
   {
     id: "market-api",
     title: "Market API",
-    description: "RESTful API for marketplace operations with MongoDB backend, comprehensive Swagger documentation, and real-time data management.",
+    description:
+      "RESTful API for marketplace operations with MongoDB backend, comprehensive Swagger documentation, and real-time data management.",
     category: "Backend",
     client: "Erra Soft",
     type: "Freelance",
@@ -211,7 +234,8 @@ export const projects: Project[] = [
   {
     id: "e-commerce-api",
     title: "E-Commerce API",
-    description: "Full-featured e-commerce backend API with SQL Server database, Swagger documentation, and comprehensive endpoint coverage.",
+    description:
+      "Full-featured e-commerce backend API with SQL Server database, Swagger documentation, and comprehensive endpoint coverage.",
     category: "Backend",
     client: "We3ds",
     type: "Freelance",
@@ -225,7 +249,8 @@ export const projects: Project[] = [
   {
     id: "marketing-mvc",
     title: "Marketing MVC",
-    description: "Full-stack marketing application built with ASP.NET MVC and SQL Server, featuring modern UI and comprehensive business logic.",
+    description:
+      "Full-stack marketing application built with ASP.NET MVC and SQL Server, featuring modern UI and comprehensive business logic.",
     category: "Backend",
     client: "Erra Soft",
     type: "Freelance",
