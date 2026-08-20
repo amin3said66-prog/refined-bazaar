@@ -1,7 +1,7 @@
 import "./lib/error-capture";
 
 import { withCacheHeaders } from "./lib/cache-headers";
-import { consumeLastCapturedError } from "./lib/error-capture";
+import { consumeLastCapturedError, isExpectedRequestAbort } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
 type ServerEntry = {
@@ -52,6 +52,12 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return withCacheHeaders(request, await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
+      // The requester has gone away, so there is no error page to deliver.
+      // More importantly, do not report an ordinary socket cancellation as a
+      // fatal application runtime error in the preview.
+      if (request.signal.aborted || isExpectedRequestAbort(error)) {
+        return new Response(null, { status: 499 });
+      }
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
